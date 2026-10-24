@@ -1,0 +1,118 @@
+
+.emergency-section {
+  max-width: 900px;
+  margin: 50px auto;
+  padding: 30px 20px;
+  font-family: inherit;
+}
+
+.emergency-heading {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.emergency-label {
+  color: #be185d;
+  font-size: 13px;
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+
+.emergency-heading h2 {
+  margin: 10px 0;
+  font-size: 30px;
+  color: #25213b;
+}
+
+.emergency-heading p {
+  color: #666;
+}
+
+.emergency-search {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 13px;
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  font-size: 15px;
+}
+
+.emergency-list {
+  display: grid;
+  gap: 15px;
+}
+
+.emergency-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  padding: 20px;
+  border: 1px solid #f0d7e4;
+  border-radius: 14px;
+  background: #fff8fc;
+}
+
+.emergency-info h3 {
+  margin: 0 0 6px;
+  color: #8e174e;
+}
+
+.emergency-info p {
+  margin: 5px 0;
+  color: #444;
+}
+
+.emergency-info small {
+  display: block;
+  color: #666;
+}
+
+.emergency-info strong {
+  display: block;
+  margin-top: 10px;
+  font-size: 23px;
+}
+
+.emergency-call {
+  padding: 11px 20px;
+  background: #be185d;
+  color: white;
+  text-decoration: none;
+  border-radius: 9px;
+  font-weight: bold;
+}
+
+.emergency-call:hover {
+  background: #9d174d;
+}
+
+.emergency-empty {
+  text-align: center;
+  color: #666;
+  margin-top: 20px;
+}
+
+@media (max-width: 480px) {
+  .emergency-section {
+    padding: 20px 12px;
+  }
+
+  .emergency-heading h2 {
+    font-size: 24px;
+  }
+
+  .emergency-card {
+    padding: 14px;
+  }
+
+  .emergency-info h3 {
+    font-size: 16px;
+  }
+
+  .emergency-call {
+    padding: 10px 14px;
+  }
+}

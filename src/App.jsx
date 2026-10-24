@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from "react";
 import "./App.css";
+import EmergencyNumbers from "./components/EmergencyNumbers";
 
 const tips = [
   "Plan your route before travelling.",
@@ -40,6 +41,7 @@ function App() {
   const pages = [
     "Home",
     "Emergency SOS",
+    "Emergency Numbers",
     "Contacts",
     "Fake Call",
     "Safety Tips",
@@ -159,6 +161,9 @@ function App() {
               Emergency Support
             </button>
           </section>
+        )}
+                {page === "Emergency Numbers" && (
+          <EmergencyNumbers />
         )}
 
         {page === "Emergency SOS" && (
