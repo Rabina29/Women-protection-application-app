@@ -1,0 +1,45 @@
+
+body {
+  background: #DCE5D7;
+  color: #35483A;
+}
+
+header {
+  background: #35483A;
+  color: white;
+}
+
+header h2 {
+  color: #FFFFFF;
+}
+
+.hero {
+  background: #DCE5D7;
+}
+
+.hero h1,
+.panel h1 {
+  color: #35483A;
+}
+
+.panel {
+  background: white;
+}
+
+button {
+  background: #879B83;
+  color: white;
+}
+
+button:hover {
+  background: #6F856B;
+}
+
+.danger {
+  background: #C62840;
+}
+
+footer {
+  background: #35483A;
+  color: white;
+}
