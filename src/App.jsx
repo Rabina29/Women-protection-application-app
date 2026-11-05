@@ -2,6 +2,8 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 import EmergencyNumbers from "./components/EmergencyNumbers";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 
 const tips = [
   "Plan your route before travelling.",
@@ -11,7 +13,7 @@ const tips = [
 ];
 
 function App() {
-  const [page, setPage] = useState("Home");
+  const [page, setPage] = useState("Login");
   const [contacts, setContacts] = useState([{ name: "", phone: "" }]);
   const [location, setLocation] = useState("");
   const [incident, setIncident] = useState("");
@@ -124,6 +126,22 @@ function App() {
 
   return (
     <div className="app">
+            {page === "Login" && (
+        <Login
+          onLogin={() => setPage("Home")}
+          onRegister={() => setPage("Register")}
+        />
+      )}
+
+      {page === "Register" && (
+        <Register
+          onRegister={() => setPage("Login")}
+          onLogin={() => setPage("Login")}
+        />
+      )}
+
+      {page !== "Login" && page !== "Register" && (
+        <> 
       <header>
         <h2>♥ WomenSafe</h2>
 
@@ -141,6 +159,17 @@ function App() {
             </button>
           ))}
         </nav>
+        <button
+  type="button"
+  className="logout-btn"
+  onClick={() => {
+    setPage("Login");
+    setMessage("");
+  }}
+>
+  Logout
+</button>
+
       </header>
 
       <p className="message">Backend: {backendStatus}</p>
@@ -332,7 +361,10 @@ function App() {
       <footer>
         Women Protection Application | Project 300
       </footer>
-    </div>
+      </>
+      )}
+
+      </div>
   );
 }
 
