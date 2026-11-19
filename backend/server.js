@@ -1,7 +1,9 @@
+
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 const app = express();
@@ -24,88 +26,454 @@ const userSchema = new mongoose.Schema({
 
 const User = mongoose.model("User", userSchema);
 
+// Admin Schema
+const adminSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    lowercase: true,
+  },
+  password: {
+    type: String,
+    required: true,
+  },
+});
+
+const Admin = mongoose.model("Admin", adminSchema);
+
 // Incident Report Schema
 const reportSchema = new mongoose.Schema({
-  description: String,
-  createdAt: { type: Date, default: Date.now },
+  description: {
+    type: String,
+    required: true,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 const Report = mongoose.model("Report", reportSchema);
 
-// Backend Status
+// SOS Alert Schema
+const sosSchema = new mongoose.Schema({
+  location: {
+    type: String,
+    default: "Location not provided",
+  },
+  status: {
+    type: String,
+    default: "New",
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+});
+
+const SOSAlert = mongoose.model("SOSAlert", sosSchema);
+
+// Safety Tip Schema
+const safetyTipSchema = new mongoose.Schema({
+  tip: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+});
+
+const SafetyTip = mongoose.model("SafetyTip", safetyTipSchema);
+
+// Backend Status API
 app.get("/api/status", (req, res) => {
   res.json({
     message: "Backend connected",
-    database: mongoose.connection.readyState === 1 ? "Connected" : "Disconnected",
+    database:
+      mongoose.connection.readyState === 1
+        ? "Connected"
+        : "Disconnected",
   });
 });
 
-// Register API
+// User Register API
 app.post("/api/register", async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
     if (!name || !email || !password) {
-      return res.status(400).json({ message: "All fields are required." });
+      return res.status(400).json({
+        message: "All fields are required.",
+      });
     }
 
-    const existingUser = await User.findOne({ email: email.toLowerCase() });
+    const normalizedEmail = email.toLowerCase();
+
+    const existingUser = await User.findOne({
+      email: normalizedEmail,
+    });
 
     if (existingUser) {
-      return res.status(409).json({ message: "Email already registered." });
+      return res.status(409).json({
+        message: "Email already registered.",
+      });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
     await User.create({
       name,
-      email: email.toLowerCase(),
+      email: normalizedEmail,
       password: hashedPassword,
     });
 
-    res.status(201).json({ message: "Registration successful!" });
+    res.status(201).json({
+      message: "Registration successful!",
+    });
   } catch (error) {
-    res.status(500).json({ message: "Registration failed." });
+    console.log("User Registration Error:", error);
+
+    res.status(500).json({
+      message: "Registration failed.",
+    });
   }
 });
 
-// Login API
+// Get All Registered Users API
+app.get("/api/admin/users", async (req, res) => {
+  try {
+    const users = await User.find().select("-password");
+
+    console.log("Users fetched:", users.length);
+
+    res.json(users);
+  } catch (error) {
+    console.log("Fetch Users Error:", error);
+
+    res.status(500).json({
+      message: "Could not fetch users.",
+    });
+  }
+});
+
+// User Login API
 app.post("/api/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!email || !password) {
+      return res.status(400).json({
+        message: "Email and password are required.",
+      });
+    }
+
+    const user = await User.findOne({
+      email: email.toLowerCase(),
+    });
 
     if (!user) {
-      return res.status(401).json({ message: "Invalid email or password." });
+      return res.status(401).json({
+        message: "Invalid email or password.",
+      });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
+    const isMatch = await bcrypt.compare(
+      password,
+      user.password
+    );
 
     if (!isMatch) {
-      return res.status(401).json({ message: "Invalid email or password." });
+      return res.status(401).json({
+        message: "Invalid email or password.",
+      });
     }
 
-    res.json({ message: "Login successful!", user: { name: user.name, email: user.email } });
+    res.json({
+      message: "Login successful!",
+      user: {
+        name: user.name,
+        email: user.email,
+      },
+    });
   } catch (error) {
-    res.status(500).json({ message: "Login failed." });
+    console.log("User Login Error:", error);
+
+    res.status(500).json({
+      message: "Login failed.",
+    });
   }
 });
 
-// Save Incident Report
+// Admin Registration API
+app.post("/api/admin/register", async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+
+    if (!name || !email || !password) {
+      return res.status(400).json({
+        message: "All fields are required.",
+      });
+    }
+
+    if (password.length < 8) {
+      return res.status(400).json({
+        message: "Password must be at least 8 characters.",
+      });
+    }
+
+    const normalizedEmail = email.toLowerCase();
+
+    const existingAdmin = await Admin.findOne({
+      email: normalizedEmail,
+    });
+
+    if (existingAdmin) {
+      return res.status(409).json({
+        message: "Admin email already exists.",
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    await Admin.create({
+      name,
+      email: normalizedEmail,
+      password: hashedPassword,
+    });
+
+    res.status(201).json({
+      message: "Admin account created successfully!",
+    });
+  } catch (error) {
+    console.log("Admin Registration Error:", error);
+
+    res.status(500).json({
+      message: "Admin registration failed.",
+    });
+  }
+});
+
+// Admin Login API
+app.post("/api/admin/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({
+        message: "Email and password are required.",
+      });
+    }
+
+    const admin = await Admin.findOne({
+      email: email.toLowerCase(),
+    });
+
+    if (!admin) {
+      return res.status(401).json({
+        message: "Invalid admin email or password.",
+      });
+    }
+
+    const isMatch = await bcrypt.compare(
+      password,
+      admin.password
+    );
+
+    if (!isMatch) {
+      return res.status(401).json({
+        message: "Invalid admin email or password.",
+      });
+    }
+
+    const token = jwt.sign(
+      {
+        id: admin._id,
+        email: admin.email,
+        role: "admin",
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "2h" }
+    );
+
+    res.json({
+      message: "Admin login successful!",
+      token,
+      admin: {
+        name: admin.name,
+        email: admin.email,
+      },
+    });
+  } catch (error) {
+    console.log("Admin Login Error:", error);
+
+    res.status(500).json({
+      message: "Admin login failed.",
+    });
+  }
+});
+
+// Save Incident Report API
 app.post("/api/reports", async (req, res) => {
   try {
     const { description } = req.body;
 
     if (!description || !description.trim()) {
-      return res.status(400).json({ message: "Description is required." });
+      return res.status(400).json({
+        message: "Description is required.",
+      });
     }
 
-    await Report.create({ description: description.trim() });
+    await Report.create({
+      description: description.trim(),
+    });
 
-    res.status(201).json({ message: "Report saved successfully." });
+    res.status(201).json({
+      message: "Report saved successfully.",
+    });
   } catch (error) {
-    res.status(500).json({ message: "Report could not be saved." });
+    console.log("Report Save Error:", error);
+
+    res.status(500).json({
+      message: "Report could not be saved.",
+    });
+  }
+});
+
+// Get All Incident Reports API
+app.get("/api/admin/reports", async (req, res) => {
+  try {
+    const reports = await Report.find().sort({
+      createdAt: -1,
+    });
+
+    console.log("Reports fetched:", reports.length);
+
+    res.status(200).json(reports);
+  } catch (error) {
+    console.log("Fetch Reports Error:", error);
+
+    res.status(500).json({
+      message: "Could not fetch reports.",
+    });
+  }
+});
+
+// Save SOS Alert API
+app.post("/api/sos", async (req, res) => {
+  try {
+    const { location } = req.body;
+
+    const alert = await SOSAlert.create({
+      location: location || "Location not provided",
+    });
+
+    res.status(201).json({
+      message: "SOS alert saved successfully.",
+      alert,
+    });
+  } catch (error) {
+    console.log("SOS Save Error:", error);
+
+    res.status(500).json({
+      message: "SOS alert could not be saved.",
+    });
+  }
+});
+
+// Get All SOS Alerts API
+app.get("/api/admin/sos-alerts", async (req, res) => {
+  try {
+    const alerts = await SOSAlert.find().sort({
+      createdAt: -1,
+    });
+
+    console.log("SOS Alerts fetched:", alerts.length);
+
+    res.status(200).json(alerts);
+  } catch (error) {
+    console.log("Fetch SOS Alerts Error:", error);
+
+    res.status(500).json({
+      message: "Could not fetch SOS alerts.",
+    });
+  }
+});
+
+// Add Safety Tip API
+app.post("/api/admin/safety-tips", async (req, res) => {
+  try {
+    const { tip } = req.body;
+
+    if (!tip || !tip.trim()) {
+      return res.status(400).json({
+        message: "Safety tip is required.",
+      });
+    }
+
+    const newTip = await SafetyTip.create({
+      tip: tip.trim(),
+    });
+
+    res.status(201).json({
+      message: "Safety tip added successfully.",
+      safetyTip: newTip,
+    });
+  } catch (error) {
+    console.log("Add Safety Tip Error:", error);
+
+    res.status(500).json({
+      message: "Safety tip could not be added.",
+    });
+  }
+});
+
+// Get All Safety Tips API
+app.get("/api/admin/safety-tips", async (req, res) => {
+  try {
+    const safetyTips = await SafetyTip.find().sort({
+      createdAt: -1,
+    });
+
+    res.status(200).json(safetyTips);
+  } catch (error) {
+    console.log("Fetch Safety Tips Error:", error);
+
+    res.status(500).json({
+      message: "Could not fetch safety tips.",
+    });
+  }
+});
+
+// Delete Safety Tip API
+app.delete("/api/admin/safety-tips/:id", async (req, res) => {
+  try {
+    const deletedTip = await SafetyTip.findByIdAndDelete(
+      req.params.id
+    );
+
+    if (!deletedTip) {
+      return res.status(404).json({
+        message: "Safety tip not found.",
+      });
+    }
+
+    res.status(200).json({
+      message: "Safety tip deleted successfully.",
+    });
+  } catch (error) {
+    console.log("Delete Safety Tip Error:", error);
+
+    res.status(500).json({
+      message: "Safety tip could not be deleted.",
+    });
   }
 });
 

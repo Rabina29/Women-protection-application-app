@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 
-function Login({ onLogin, onRegister }) {
+function Login({ onLogin, onRegister, onAdminClick }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
@@ -69,6 +69,19 @@ function Login({ onLogin, onRegister }) {
           }}
         >
           Register
+        </a>
+      </p>
+
+      <p>
+        Are you an Admin?{" "}
+        <a
+          href="#"
+          onClick={(event) => {
+            event.preventDefault();
+            onAdminClick();
+          }}
+        >
+          Admin Login
         </a>
       </p>
     </div>
