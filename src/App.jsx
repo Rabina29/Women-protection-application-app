@@ -1,4 +1,4 @@
-
+import TransportComplaint from "./pages/TransportComplaint";
 import { useState, useEffect } from "react";
 import "./App.css";
 
@@ -45,6 +45,7 @@ function App() {
     "Report Incident",
     "Nearby Services",
     "Community",
+    "Public Transport Complaint",
   ];
 
   const icons = {
@@ -449,6 +450,8 @@ function App() {
             </div>
           </>
         );
+        case "Public Transport Complaint":
+  return <TransportComplaint />;
 
       case "Community":
         return <Community />;
