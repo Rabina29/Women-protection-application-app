@@ -10,6 +10,7 @@ import Community from "./pages/Community";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminRegister from "./pages/AdminRegister";
+import SafeRoute from "./pages/SafeRoute";
 
 function App() {
   const [page, setPage] = useState("Login");
@@ -45,6 +46,7 @@ function App() {
     "Report Incident",
     "Nearby Services",
     "Community",
+    "Safe Route",
   ];
 
   const icons = {
@@ -57,6 +59,7 @@ function App() {
     "Report Incident": "⚑",
     "Nearby Services": "📍",
     Community: "👥",
+    "Safe Route": "🗺️",
   };
 
   useEffect(() => {
@@ -361,6 +364,7 @@ function App() {
                 ["Fake Call", "Simulate an incoming call.", "📞"],
                 ["Report Incident", "Report an unsafe incident.", "⚑"],
                 ["Community", "Connect and support each other.", "👥"],
+                ["Safe Route", "Find a route to your destination.", "🗺️"],
               ].map(([name, description, icon]) => (
                 <button
                   className="feature-card"
@@ -455,6 +459,9 @@ function App() {
 
       case "Emergency Numbers":
         return <EmergencyNumbers />;
+
+      case "Safe Route":
+        return <SafeRoute />;
 
       case "Emergency SOS":
         return (
