@@ -477,6 +477,102 @@ app.delete("/api/admin/safety-tips/:id", async (req, res) => {
   }
 });
 
+// Public Transport Complaint Schema
+const transportComplaintSchema = new mongoose.Schema({
+  busNumber: { type: String, required: true },
+  busRoute: { type: String, required: true },
+  incidentType: { type: String, required: true },
+  incidentDate: { type: Date, required: true },
+  incidentLocation: { type: String, required: true },
+  description: { type: String, required: true },
+  isAnonymous: { type: Boolean, default: false },
+  evidenceUrl: { type: String, default: "" },
+  status: {
+    type: String,
+    enum: ["Pending", "Under Review", "Verified", "Resolved"],
+    default: "Pending"
+  },
+  createdAt: { type: Date, default: Date.now }
+});
+
+const TransportComplaint = mongoose.model(
+  "TransportComplaint",
+  transportComplaintSchema
+);
+
+// Submit Transport Complaint
+app.post("/api/transport-complaints", async (req, res) => {
+  try {
+    const complaint = await TransportComplaint.create(req.body);
+
+    res.status(201).json({
+      message: "Transport complaint submitted successfully!",
+      complaint
+    });
+  } catch (error) {
+    console.log("Transport Complaint Error:", error);
+    res.status(500).json({
+      message: "Complaint could not be submitted."
+    });
+  }
+});
+
+// Get All Transport Complaints
+app.get("/api/admin/transport-complaints", async (req, res) => {
+  try {
+    const complaints = await TransportComplaint.find().sort({
+      createdAt: -1
+    });
+
+    res.json(complaints);
+  } catch (error) {
+    res.status(500).json({
+      message: "Could not fetch complaints."
+    });
+  }
+});
+
+// Update Complaint Status
+app.patch("/api/admin/transport-complaints/:id", async (req, res) => {
+  try {
+    const { status } = req.body;
+
+    const allowedStatuses = [
+      "Pending",
+      "Under Review",
+      "Verified",
+      "Resolved"
+    ];
+
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({
+        message: "Invalid complaint status."
+      });
+    }
+
+    const complaint = await TransportComplaint.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true, runValidators: true }
+    );
+
+    if (!complaint) {
+      return res.status(404).json({
+        message: "Complaint not found."
+      });
+    }
+
+    res.json({
+      message: "Complaint status updated!",
+      complaint
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Status update failed."
+    });
+  }
+});
+
 // Start Server
 const PORT = 5000;
 

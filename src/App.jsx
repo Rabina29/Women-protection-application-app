@@ -1,4 +1,5 @@
 
+import TransportComplaint from "./pages/TransportComplaint";
 import { useState, useEffect } from "react";
 import "./App.css";
 
@@ -47,6 +48,7 @@ function App() {
     "Nearby Services",
     "Community",
     "Safe Route",
+    "Public Transport Complaint",
   ];
 
   const icons = {
@@ -60,6 +62,7 @@ function App() {
     "Nearby Services": "📍",
     Community: "👥",
     "Safe Route": "🗺️",
+    "Public Transport Complaint": "🚌",
   };
 
   useEffect(() => {
@@ -365,6 +368,7 @@ function App() {
                 ["Report Incident", "Report an unsafe incident.", "⚑"],
                 ["Community", "Connect and support each other.", "👥"],
                 ["Safe Route", "Find a route to your destination.", "🗺️"],
+                ["Public Transport Complaint", "Submit a public transport complaint.", "🚌"],
               ].map(([name, description, icon]) => (
                 <button
                   className="feature-card"
@@ -453,6 +457,9 @@ function App() {
             </div>
           </>
         );
+
+      case "Public Transport Complaint":
+        return <TransportComplaint />;
 
       case "Community":
         return <Community />;
