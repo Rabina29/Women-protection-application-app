@@ -12,6 +12,7 @@ import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminRegister from "./pages/AdminRegister";
 import SafeRoute from "./pages/SafeRoute";
+import SafetyCheckIn from "./pages/SafetyCheckIn";
 
 function App() {
   const [page, setPage] = useState("Login");
@@ -49,6 +50,7 @@ function App() {
     "Community",
     "Safe Route",
     "Public Transport Complaint",
+    "Safety Check-in Timer",
   ];
 
   const icons = {
@@ -63,6 +65,7 @@ function App() {
     Community: "👥",
     "Safe Route": "🗺️",
     "Public Transport Complaint": "🚌",
+    "Safety Check-in Timer": "⏱️",
   };
 
   useEffect(() => {
@@ -369,6 +372,7 @@ function App() {
                 ["Community", "Connect and support each other.", "👥"],
                 ["Safe Route", "Find a route to your destination.", "🗺️"],
                 ["Public Transport Complaint", "Submit a public transport complaint.", "🚌"],
+                ["Safety Check-in Timer", "Set a timer to confirm you are safe.", "⏱️"],
               ].map(([name, description, icon]) => (
                 <button
                   className="feature-card"
@@ -469,6 +473,9 @@ function App() {
 
       case "Safe Route":
         return <SafeRoute />;
+
+      case "Safety Check-in Timer":
+        return <SafetyCheckIn />;
 
       case "Emergency SOS":
         return (
