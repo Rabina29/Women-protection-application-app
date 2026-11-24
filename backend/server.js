@@ -5,6 +5,7 @@ const cors = require("cors");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const evidenceRoutes = require("./routes/evidenceRoutes");
+const complaintRoutes = require("./routes/complaintRoutes");
 require("dotenv").config();
 
 const app = express();
@@ -13,6 +14,7 @@ app.use(cors());
 app.use(express.json());
 app.use("/uploads", express.static("uploads"));
 app.use("/api/evidence", evidenceRoutes);
+app.use("/api/complaints", complaintRoutes);
 
 // MongoDB Connection
 mongoose
