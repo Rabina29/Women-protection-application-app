@@ -1,9 +1,10 @@
-
+import Contact from "./components/Contact";
 import TransportComplaint from "./pages/TransportComplaint";
 import { useState, useEffect } from "react";
 import "./App.css";
 
 import EmergencyNumbers from "./components/EmergencyNumbers";
+<Contact />
 import Login from "./pages/login";
 import Register from "./pages/register";
 import Community from "./pages/Community";
@@ -565,9 +566,40 @@ function App() {
               + Add Contact
             </button>
 
-            <p className="notice">
-              Contacts are temporary and are not saved to a database yet.
-            </p>
+            <button
+  onClick={async () => {
+    const userEmail = localStorage.getItem("userEmail");
+
+    if (!userEmail) {
+      alert("Please login first.");
+      return;
+    }
+
+    try {
+      for (const contact of contacts) {
+        if (!contact.name || !contact.phone) continue;
+
+        await fetch("http://localhost:5000/api/contacts", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userEmail,
+            name: contact.name,
+            phone: contact.phone,
+          }),
+        });
+      }
+
+      alert("Contacts saved successfully!");
+    } catch (error) {
+      alert("Failed to save contacts.");
+    }
+  }}
+>
+  Save Contacts
+</button>
           </section>
         );
 

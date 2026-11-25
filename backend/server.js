@@ -504,7 +504,18 @@ const TransportComplaint = mongoose.model(
   "TransportComplaint",
   transportComplaintSchema
 );
+const emergencyContactSchema = new mongoose.Schema({
+  userEmail: { type: String, required: true },
+  name: { type: String, required: true },
+  phone: { type: String, required: true },
+  relationship: { type: String, default: "" },
+  createdAt: { type: Date, default: Date.now }
+});
 
+const EmergencyContact = mongoose.model(
+  "EmergencyContact",
+  emergencyContactSchema
+);
 // Submit Transport Complaint
 app.post("/api/transport-complaints", async (req, res) => {
   try {
@@ -580,7 +591,38 @@ app.patch("/api/admin/transport-complaints/:id", async (req, res) => {
 
 // Start Server
 const PORT = 5000;
+app.post("/api/contacts", async (req, res) => {
+  try {
+    const { userEmail, name, phone, relationship } = req.body;
 
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+    if (!userEmail || !name || !phone) {
+      return res.status(400).json({
+        success: false,
+        message: "Required fields are missing."
+      });
+    }
+
+    const contact = new EmergencyContact({
+      userEmail: userEmail.toLowerCase().trim(),
+      name: name.trim(),
+      phone: phone.trim(),
+      relationship: relationship || ""
+    });
+
+    await contact.save();
+
+    res.status(201).json({
+      success: true,
+      message: "Emergency Contact saved successfully!",
+      contact
+    });
+
+  } catch (error) {
+    console.log("CONTACT SAVE ERROR:", error);
+
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
 });

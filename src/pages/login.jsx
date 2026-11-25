@@ -21,6 +21,7 @@ function Login({ onLogin, onRegister, onAdminClick }) {
       const data = await response.json();
 
       if (response.ok) {
+        localStorage.setItem("userEmail", email.toLowerCase());
         alert("Login successful!");
         onLogin();
       } else {
