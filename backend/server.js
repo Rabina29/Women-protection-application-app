@@ -4,17 +4,32 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const http = require("http");
+const { Server } = require("socket.io");
+
+require("dotenv").config();
+
 const evidenceRoutes = require("./routes/evidenceRoutes");
 const complaintRoutes = require("./routes/complaintRoutes");
-require("dotenv").config();
+const locationRoutes = require("./routes/locationRoutes");
 
 const app = express();
 
-app.use(cors());
+// Middleware
+app.use(cors({
+  origin: ["http://localhost:5173", "http://localhost:5174"],
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+}));
+
 app.use(express.json());
 app.use("/uploads", express.static("uploads"));
+
+// Existing Routes
 app.use("/api/evidence", evidenceRoutes);
 app.use("/api/complaints", complaintRoutes);
+
+// Live Location Route
+app.use("/api/location", locationRoutes);
 
 // MongoDB Connection
 mongoose
@@ -169,7 +184,7 @@ app.get("/api/admin/users", async (req, res) => {
   }
 });
 
-// User Login API
+// User Login API with JWT
 app.post("/api/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -201,8 +216,19 @@ app.post("/api/login", async (req, res) => {
       });
     }
 
+    const token = jwt.sign(
+      {
+        id: user._id,
+        email: user.email,
+        role: "user",
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "2h" }
+    );
+
     res.json({
       message: "Login successful!",
+      token,
       user: {
         name: user.name,
         email: user.email,
@@ -477,7 +503,7 @@ app.delete("/api/admin/safety-tips/:id", async (req, res) => {
     console.log("Delete Safety Tip Error:", error);
 
     res.status(500).json({
-      message: "Safety tip could not be deleted.",
+      message: "Could not delete safety tip.",
     });
   }
 });
@@ -495,27 +521,30 @@ const transportComplaintSchema = new mongoose.Schema({
   status: {
     type: String,
     enum: ["Pending", "Under Review", "Verified", "Resolved"],
-    default: "Pending"
+    default: "Pending",
   },
-  createdAt: { type: Date, default: Date.now }
+  createdAt: { type: Date, default: Date.now },
 });
 
 const TransportComplaint = mongoose.model(
   "TransportComplaint",
   transportComplaintSchema
 );
+
+// Emergency Contact Schema
 const emergencyContactSchema = new mongoose.Schema({
   userEmail: { type: String, required: true },
   name: { type: String, required: true },
   phone: { type: String, required: true },
   relationship: { type: String, default: "" },
-  createdAt: { type: Date, default: Date.now }
+  createdAt: { type: Date, default: Date.now },
 });
 
 const EmergencyContact = mongoose.model(
   "EmergencyContact",
   emergencyContactSchema
 );
+
 // Submit Transport Complaint
 app.post("/api/transport-complaints", async (req, res) => {
   try {
@@ -523,12 +552,13 @@ app.post("/api/transport-complaints", async (req, res) => {
 
     res.status(201).json({
       message: "Transport complaint submitted successfully!",
-      complaint
+      complaint,
     });
   } catch (error) {
     console.log("Transport Complaint Error:", error);
+
     res.status(500).json({
-      message: "Complaint could not be submitted."
+      message: "Complaint could not be submitted.",
     });
   }
 });
@@ -537,13 +567,13 @@ app.post("/api/transport-complaints", async (req, res) => {
 app.get("/api/admin/transport-complaints", async (req, res) => {
   try {
     const complaints = await TransportComplaint.find().sort({
-      createdAt: -1
+      createdAt: -1,
     });
 
     res.json(complaints);
   } catch (error) {
     res.status(500).json({
-      message: "Could not fetch complaints."
+      message: "Could not fetch complaints.",
     });
   }
 });
@@ -557,12 +587,12 @@ app.patch("/api/admin/transport-complaints/:id", async (req, res) => {
       "Pending",
       "Under Review",
       "Verified",
-      "Resolved"
+      "Resolved",
     ];
 
     if (!allowedStatuses.includes(status)) {
       return res.status(400).json({
-        message: "Invalid complaint status."
+        message: "Invalid complaint status.",
       });
     }
 
@@ -574,23 +604,41 @@ app.patch("/api/admin/transport-complaints/:id", async (req, res) => {
 
     if (!complaint) {
       return res.status(404).json({
-        message: "Complaint not found."
+        message: "Complaint not found.",
       });
     }
 
     res.json({
       message: "Complaint status updated!",
-      complaint
+      complaint,
     });
   } catch (error) {
     res.status(500).json({
-      message: "Status update failed."
+      message: "Status update failed.",
     });
   }
 });
 
-// Start Server
-const PORT = 5000;
+// Create HTTP Server
+const server = http.createServer(app);
+
+// Socket.IO Live Location Connection
+const io = new Server(server, {
+  cors: {
+    origin: ["http://localhost:5173", "http://localhost:5174"],
+    methods: ["GET", "POST"],
+  },
+});
+
+io.on("connection", (socket) => {
+  console.log("Socket connected:", socket.id);
+
+  socket.on("disconnect", () => {
+    console.log("Socket disconnected:", socket.id);
+  });
+});
+
+// Emergency Contacts API
 app.post("/api/contacts", async (req, res) => {
   try {
     const { userEmail, name, phone, relationship } = req.body;
@@ -598,7 +646,7 @@ app.post("/api/contacts", async (req, res) => {
     if (!userEmail || !name || !phone) {
       return res.status(400).json({
         success: false,
-        message: "Required fields are missing."
+        message: "Required fields are missing.",
       });
     }
 
@@ -606,7 +654,7 @@ app.post("/api/contacts", async (req, res) => {
       userEmail: userEmail.toLowerCase().trim(),
       name: name.trim(),
       phone: phone.trim(),
-      relationship: relationship || ""
+      relationship: relationship || "",
     });
 
     await contact.save();
@@ -614,15 +662,21 @@ app.post("/api/contacts", async (req, res) => {
     res.status(201).json({
       success: true,
       message: "Emergency Contact saved successfully!",
-      contact
+      contact,
     });
-
   } catch (error) {
     console.log("CONTACT SAVE ERROR:", error);
 
     res.status(500).json({
       success: false,
-      message: error.message
+      message: error.message,
     });
   }
+});
+
+// Start Server
+const PORT = 5000;
+
+server.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
 });

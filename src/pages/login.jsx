@@ -23,7 +23,7 @@ function Login({ onLogin, onRegister, onAdminClick }) {
       if (response.ok) {
         localStorage.setItem("userEmail", email.toLowerCase());
         alert("Login successful!");
-        onLogin();
+        onLogin(data.user.email, data.token);
       } else {
         setMessage(data.message);
       }

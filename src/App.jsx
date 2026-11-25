@@ -16,9 +16,13 @@ import SafeRoute from "./pages/SafeRoute";
 import SafetyCheckIn from "./pages/SafetyCheckIn";
 import EvidenceLocker from "./pages/EvidenceLocker";
 import DirectComplaint from "./pages/DirectComplaint";
+import LiveLocation from "./pages/LiveLocation";
 
 function App() {
   const [page, setPage] = useState("Login");
+
+  const [userEmail, setUserEmail] = useState("");
+  const [userToken, setUserToken] = useState("");
 
   const [contacts, setContacts] = useState([
     { name: "", phone: "" },
@@ -56,6 +60,7 @@ function App() {
     "Safety Check-in Timer",
     "Evidence Locker",
     "Direct Complaint Submission",
+    "Live Location Sharing",
   ];
 
   const icons = {
@@ -73,6 +78,7 @@ function App() {
     "Safety Check-in Timer": "⏱️",
     "Evidence Locker": "🔐",
     "Direct Complaint Submission": "📨",
+    "Live Location Sharing": "📍",
   };
 
   useEffect(() => {
@@ -127,6 +133,13 @@ function App() {
   function openPage(item) {
     setPage(item);
     setMessage("");
+  }
+
+  function handleLogout() {
+    setUserEmail("");
+    setUserToken("");
+    setMessage("");
+    setPage("Login");
   }
 
   function getLocation() {
@@ -280,7 +293,11 @@ function App() {
   if (page === "Login") {
     return (
       <Login
-        onLogin={() => setPage("Home")}
+        onLogin={(email, token) => {
+          setUserEmail(email);
+          setUserToken(token);
+          setPage("Home");
+        }}
         onRegister={() => setPage("Register")}
         onAdminClick={() => setPage("AdminLogin")}
       />
@@ -382,6 +399,7 @@ function App() {
                 ["Safety Check-in Timer", "Set a timer to confirm you are safe.", "⏱️"],
                 ["Evidence Locker", "Store and view your important evidence.", "🔐"],
                 ["Direct Complaint Submission", "Submit a complaint through the demo platform.", "📨"],
+                ["Live Location Sharing", "Share your current location securely.", "📍"],
               ].map(([name, description, icon]) => (
                 <button
                   className="feature-card"
@@ -469,6 +487,14 @@ function App() {
               </section>
             </div>
           </>
+        );
+
+      case "Live Location Sharing":
+        return (
+          <LiveLocation
+            userEmail={userEmail}
+            token={userToken}
+          />
         );
 
       case "Public Transport Complaint":
@@ -754,7 +780,7 @@ function App() {
 
           <button
             className="logout-btn"
-            onClick={() => openPage("Login")}
+            onClick={handleLogout}
           >
             ↪ Logout
           </button>
