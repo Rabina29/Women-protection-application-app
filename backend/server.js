@@ -652,7 +652,28 @@ const TransportComplaint = mongoose.model(
   "TransportComplaint",
   transportComplaintSchema
 );
+// Community Post Schema
+const postSchema = new mongoose.Schema({
+  text: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+  anonymous: {
+    type: Boolean,
+    default: false,
+  },
+  likes: {
+    type: Number,
+    default: 0,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+});
 
+const Post = mongoose.model("Post", postSchema);
 // Emergency Contact Schema
 const emergencyContactSchema = new mongoose.Schema({
   userEmail: { type: String, required: true },
@@ -759,6 +780,50 @@ io.on("connection", (socket) => {
     console.log("Socket disconnected:", socket.id);
   });
 });
+// Create Community Post API
+app.post("/api/posts", async (req, res) => {
+  try {
+    const { text, anonymous } = req.body;
+
+    if (!text || !text.trim()) {
+      return res.status(400).json({
+        message: "Post text is required.",
+      });
+    }
+
+    const post = await Post.create({
+      text: text.trim(),
+      anonymous: anonymous || false,
+    });
+
+    res.status(201).json({
+      message: "Post created successfully!",
+      post,
+    });
+  } catch (error) {
+    console.log("Create Post Error:", error);
+
+    res.status(500).json({
+      message: "Post could not be created.",
+    });
+  }
+});
+// Get All Community Posts API
+app.get("/api/posts", async (req, res) => {
+  try {
+    const posts = await Post.find().sort({
+      createdAt: -1,
+    });
+
+    res.status(200).json({ posts });
+  } catch (error) {
+    console.log("Fetch Posts Error:", error);
+
+    res.status(500).json({
+      message: "Could not fetch posts.",
+    });
+  }
+});
 
 // Emergency Contacts API
 app.post("/api/contacts", async (req, res) => {
@@ -795,7 +860,32 @@ app.post("/api/contacts", async (req, res) => {
     });
   }
 });
+// Like Community Post API
+app.patch("/api/posts/:id/like", async (req, res) => {
+  try {
+    const post = await Post.findByIdAndUpdate(
+      req.params.id,
+      { $inc: { likes: 1 } },
+      { returnDocument: "after" }
+    );
 
+    if (!post) {
+      return res.status(404).json({
+        message: "Post not found.",
+      });
+    }
+
+    res.status(200).json({
+      message: "Post liked successfully!",
+      post,
+    });
+  } catch (error) {
+    console.log("Like Post Error:", error);
+    res.status(500).json({
+      message: "Could not like post.",
+    });
+  }
+});
 // Start Server
 const PORT = 5000;
 

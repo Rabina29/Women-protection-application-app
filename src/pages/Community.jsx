@@ -68,16 +68,32 @@ function Community() {
     }
   };
 
-  // Like a post (temporary)
-  const likePost = (id) => {
+  // Like a post and save in MongoDB
+const likePost = async (id) => {
+  try {
+    const response = await fetch(
+      `http://localhost:5000/api/posts/${id}/like`,
+      {
+        method: "PATCH",
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      alert(data.message || "Could not like post.");
+      return;
+    }
+
     setPosts((previousPosts) =>
       previousPosts.map((post) =>
-        post._id === id
-          ? { ...post, likes: post.likes + 1 }
-          : post
+        post._id === id ? data.post : post
       )
     );
-  };
+  } catch (error) {
+    alert("Could not connect to backend.");
+  }
+};
 
   return (
     <div
