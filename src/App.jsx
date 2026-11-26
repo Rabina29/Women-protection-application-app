@@ -18,6 +18,7 @@ import EvidenceLocker from "./pages/EvidenceLocker";
 import DirectComplaint from "./pages/DirectComplaint";
 import LiveLocation from "./pages/LiveLocation";
 import PersonalSafetyChecklist from "./pages/PersonalSafetyChecklist";
+import WomenSafetyQuiz from "./pages/WomenSafetyQuiz";
 
 function App() {
   const [page, setPage] = useState("Login");
@@ -66,6 +67,7 @@ function App() {
     "Direct Complaint Submission",
     "Live Location Sharing",
     "Personal Safety Checklist",
+    "Women Safety Awareness Quiz",
   ];
 
   const icons = {
@@ -86,6 +88,7 @@ function App() {
     "Direct Complaint Submission": "📨",
     "Live Location Sharing": "📍",
     "Personal Safety Checklist": "✓",
+    "Women Safety Awareness Quiz": "📝",
   };
 
   useEffect(() => {
@@ -446,6 +449,7 @@ function App() {
                 ["Direct Complaint Submission", "Submit a complaint through the demo platform.", "📨"],
                 ["Live Location Sharing", "Share your current location securely.", "📍"],
                 ["Personal Safety Checklist", "Check your safety before going outside.", "✓"],
+                ["Women Safety Awareness Quiz", "Test your knowledge about women's safety.", "📝"],
               ].map(([name, description, icon]) => (
                 <button
                   className="feature-card"
@@ -545,6 +549,9 @@ function App() {
 
       case "Personal Safety Checklist":
         return <PersonalSafetyChecklist />;
+
+      case "Women Safety Awareness Quiz":
+        return <WomenSafetyQuiz />;
 
       case "Public Transport Complaint":
         return <TransportComplaint />;
