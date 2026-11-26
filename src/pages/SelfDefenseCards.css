@@ -1,0 +1,148 @@
+
+.defense-page {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.defense-progress {
+  margin: 25px 0;
+}
+
+.defense-progress > div:first-child {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  color: #35483A;
+}
+
+.defense-progress-track {
+  height: 10px;
+  background: #DCE5D7;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.defense-progress-fill {
+  height: 100%;
+  background: #879B83;
+  border-radius: 20px;
+  transition: width 0.3s ease;
+}
+
+.defense-card {
+  background: #F5F8F3;
+  border: 1px solid #DCE5D7;
+  border-radius: 18px;
+  padding: 30px;
+  text-align: center;
+}
+
+.defense-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.defense-category {
+  background: #DCE5D7;
+  color: #35483A;
+  padding: 7px 13px;
+  border-radius: 20px;
+  font-size: 13px;
+}
+
+.defense-number {
+  color: #647568;
+  font-size: 13px;
+}
+
+.defense-icon {
+  font-size: 55px;
+  margin: 25px 0 15px;
+}
+
+.defense-card h2 {
+  color: #35483A;
+  margin-bottom: 15px;
+}
+
+.defense-card > p {
+  line-height: 1.8;
+  color: #526356;
+}
+
+.defense-advice {
+  background: #E8EFE5;
+  border-left: 4px solid #879B83;
+  padding: 15px;
+  border-radius: 8px;
+  text-align: left;
+  margin-top: 25px;
+}
+
+.defense-advice strong {
+  color: #35483A;
+}
+
+.defense-advice p {
+  margin-bottom: 0;
+  line-height: 1.6;
+}
+
+.defense-favorite {
+  margin-top: 22px;
+  background: #35483A;
+  color: white;
+}
+
+.defense-navigation {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.defense-navigation button {
+  background: #879B83;
+  color: white;
+  padding: 12px 25px;
+}
+
+.defense-favorite-count {
+  text-align: center;
+  margin: 22px 0;
+  color: #35483A;
+  font-weight: 600;
+}
+
+.defense-saved-list {
+  margin-top: 20px;
+  padding: 20px;
+  background: #F5F8F3;
+  border-radius: 12px;
+}
+
+.defense-saved-list h3 {
+  color: #35483A;
+  margin-bottom: 12px;
+}
+
+.defense-saved-list button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  margin: 8px 0;
+  background: #DCE5D7;
+  color: #35483A;
+}
+
+@media (max-width: 600px) {
+  .defense-card {
+    padding: 18px;
+  }
+
+  .defense-navigation button {
+    padding: 10px 15px;
+  }
+}

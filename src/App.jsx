@@ -19,6 +19,7 @@ import DirectComplaint from "./pages/DirectComplaint";
 import LiveLocation from "./pages/LiveLocation";
 import PersonalSafetyChecklist from "./pages/PersonalSafetyChecklist";
 import WomenSafetyQuiz from "./pages/WomenSafetyQuiz";
+import SelfDefenseCards from "./pages/SelfDefenseCards";
 
 function App() {
   const [page, setPage] = useState("Login");
@@ -68,6 +69,7 @@ function App() {
     "Live Location Sharing",
     "Personal Safety Checklist",
     "Women Safety Awareness Quiz",
+    "Self-Defense Learning Cards",
   ];
 
   const icons = {
@@ -89,6 +91,7 @@ function App() {
     "Live Location Sharing": "📍",
     "Personal Safety Checklist": "✓",
     "Women Safety Awareness Quiz": "📝",
+    "Self-Defense Learning Cards": "🥋",
   };
 
   useEffect(() => {
@@ -450,6 +453,7 @@ function App() {
                 ["Live Location Sharing", "Share your current location securely.", "📍"],
                 ["Personal Safety Checklist", "Check your safety before going outside.", "✓"],
                 ["Women Safety Awareness Quiz", "Test your knowledge about women's safety.", "📝"],
+                ["Self-Defense Learning Cards", "Learn simple personal safety and self-defense tips.", "🥋"],
               ].map(([name, description, icon]) => (
                 <button
                   className="feature-card"
@@ -552,6 +556,9 @@ function App() {
 
       case "Women Safety Awareness Quiz":
         return <WomenSafetyQuiz />;
+
+      case "Self-Defense Learning Cards":
+        return <SelfDefenseCards />;
 
       case "Public Transport Complaint":
         return <TransportComplaint />;
