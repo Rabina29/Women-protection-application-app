@@ -5,7 +5,7 @@ import Reports from "./Reports";
 import SOSAlerts from "./SOSAlerts";
 import SafetyTips from "./SafetyTips";
 
-function AdminDashboard({ onNavigate, onLogout }) {
+function AdminDashboard({ token, onNavigate, onLogout }) {
   const [activePage, setActivePage] = useState("Dashboard");
 
   function handleNavigate(page) {
@@ -96,11 +96,13 @@ function AdminDashboard({ onNavigate, onLogout }) {
 
         {activePage === "Users" && <Users />}
 
-       {activePage === "Reports" && <Reports />}
-       {activePage === "SOSAlerts" && <SOSAlerts />}
-       {activePage === "SafetyTips" && <SafetyTips />}
-        
-       
+        {activePage === "Reports" && (
+          <Reports token={token} />
+        )}
+
+        {activePage === "SOSAlerts" && <SOSAlerts />}
+
+        {activePage === "SafetyTips" && <SafetyTips />}
 
       </main>
     </div>

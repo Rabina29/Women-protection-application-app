@@ -1,3 +1,4 @@
+
 import Contact from "./components/Contact";
 import TransportComplaint from "./pages/TransportComplaint";
 import { useState, useEffect } from "react";
@@ -31,6 +32,8 @@ function App() {
   const [location, setLocation] = useState("");
   const [incident, setIncident] = useState("");
   const [reports, setReports] = useState([]);
+  const [myReports, setMyReports] = useState([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
   const [fakeCall, setFakeCall] = useState(false);
 
   const [message, setMessage] = useState("");
@@ -53,6 +56,7 @@ function App() {
     "Fake Call",
     "Safety Tips",
     "Report Incident",
+    "My Report History",
     "Nearby Services",
     "Community",
     "Safe Route",
@@ -71,6 +75,7 @@ function App() {
     "Fake Call": "📞",
     "Safety Tips": "✦",
     "Report Incident": "⚑",
+    "My Report History": "📋",
     "Nearby Services": "📍",
     Community: "👥",
     "Safe Route": "🗺️",
@@ -129,6 +134,43 @@ function App() {
 
     fetchSafetyTips();
   }, [page]);
+
+  // Load My Report History from MongoDB
+  useEffect(() => {
+    if (page !== "My Report History") return;
+
+    async function fetchMyReports() {
+      setHistoryLoading(true);
+
+      try {
+        const response = await fetch(
+          "http://localhost:5000/api/reports/my",
+          {
+            headers: {
+              Authorization: `Bearer ${userToken}`,
+            },
+          }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.message || "Could not load report history."
+          );
+        }
+
+        setMyReports(data);
+      } catch (error) {
+        console.log("My Report History Error:", error);
+        setMessage(error.message);
+      } finally {
+        setHistoryLoading(false);
+      }
+    }
+
+    fetchMyReports();
+  }, [page, userToken]);
 
   function openPage(item) {
     setPage(item);
@@ -221,6 +263,7 @@ function App() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${userToken}`,
           },
           body: JSON.stringify({
             description: trimmedIncident,
@@ -593,39 +636,39 @@ function App() {
             </button>
 
             <button
-  onClick={async () => {
-    const userEmail = localStorage.getItem("userEmail");
+              onClick={async () => {
+                const userEmail = localStorage.getItem("userEmail");
 
-    if (!userEmail) {
-      alert("Please login first.");
-      return;
-    }
+                if (!userEmail) {
+                  alert("Please login first.");
+                  return;
+                }
 
-    try {
-      for (const contact of contacts) {
-        if (!contact.name || !contact.phone) continue;
+                try {
+                  for (const contact of contacts) {
+                    if (!contact.name || !contact.phone) continue;
 
-        await fetch("http://localhost:5000/api/contacts", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            userEmail,
-            name: contact.name,
-            phone: contact.phone,
-          }),
-        });
-      }
+                    await fetch("http://localhost:5000/api/contacts", {
+                      method: "POST",
+                      headers: {
+                        "Content-Type": "application/json",
+                      },
+                      body: JSON.stringify({
+                        userEmail,
+                        name: contact.name,
+                        phone: contact.phone,
+                      }),
+                    });
+                  }
 
-      alert("Contacts saved successfully!");
-    } catch (error) {
-      alert("Failed to save contacts.");
-    }
-  }}
->
-  Save Contacts
-</button>
+                  alert("Contacts saved successfully!");
+                } catch (error) {
+                  alert("Failed to save contacts.");
+                }
+              }}
+            >
+              Save Contacts
+            </button>
           </section>
         );
 
@@ -697,6 +740,44 @@ function App() {
             <small>
               Submitted reports are sent to the backend for database storage.
             </small>
+          </section>
+        );
+
+      case "My Report History":
+        return (
+          <section className="content-card page-card">
+            <span className="eyebrow">YOUR SUBMITTED REPORTS</span>
+            <h1>My Report History</h1>
+
+            {historyLoading ? (
+              <p>Loading your reports...</p>
+            ) : myReports.length === 0 ? (
+              <p>You have not submitted any reports yet.</p>
+            ) : (
+              myReports.map((report) => (
+                <div
+                  className="content-card"
+                  key={report._id}
+                  style={{ marginBottom: "15px" }}
+                >
+                  <h3>Incident Report</h3>
+
+                  <p>{report.description}</p>
+
+                  <p>
+                    <strong>Status: </strong>
+                    {report.status || "Pending"}
+                  </p>
+
+                  <small>
+                    Submitted:{" "}
+                    {report.createdAt
+                      ? new Date(report.createdAt).toLocaleString()
+                      : "Date not available"}
+                  </small>
+                </div>
+              ))
+            )}
           </section>
         );
 

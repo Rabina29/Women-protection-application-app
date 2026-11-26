@@ -1,4 +1,3 @@
-
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -27,8 +26,6 @@ app.use("/uploads", express.static("uploads"));
 // Existing Routes
 app.use("/api/evidence", evidenceRoutes);
 app.use("/api/complaints", complaintRoutes);
-
-// Live Location Route
 app.use("/api/location", locationRoutes);
 
 // MongoDB Connection
@@ -72,6 +69,16 @@ const reportSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    default: null,
+  },
+  status: {
+    type: String,
+    enum: ["Pending", "Under Review", "Resolved"],
+    default: "Pending",
+  },
   createdAt: {
     type: Date,
     default: Date.now,
@@ -112,6 +119,53 @@ const safetyTipSchema = new mongoose.Schema({
 });
 
 const SafetyTip = mongoose.model("SafetyTip", safetyTipSchema);
+
+// JWT Authentication Middleware
+const verifyToken = (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({
+        message: "Authentication required.",
+      });
+    }
+
+    const token = authHeader.split(" ")[1];
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    req.user = decoded;
+
+    next();
+  } catch (error) {
+    return res.status(401).json({
+      message: "Invalid or expired token.",
+    });
+  }
+};
+
+// User Authentication Middleware
+const verifyUser = (req, res, next) => {
+  if (req.user.role !== "user") {
+    return res.status(403).json({
+      message: "User access only.",
+    });
+  }
+
+  next();
+};
+
+// Admin Authentication Middleware
+const verifyAdmin = (req, res, next) => {
+  if (req.user.role !== "admin") {
+    return res.status(403).json({
+      message: "Admin access only.",
+    });
+  }
+
+  next();
+};
 
 // Backend Status API
 app.get("/api/status", (req, res) => {
@@ -352,7 +406,7 @@ app.post("/api/admin/login", async (req, res) => {
 });
 
 // Save Incident Report API
-app.post("/api/reports", async (req, res) => {
+app.post("/api/reports", verifyToken, verifyUser, async (req, res) => {
   try {
     const { description } = req.body;
 
@@ -362,18 +416,39 @@ app.post("/api/reports", async (req, res) => {
       });
     }
 
-    await Report.create({
+    const report = await Report.create({
       description: description.trim(),
+      userId: req.user.id,
     });
 
     res.status(201).json({
       message: "Report saved successfully.",
+      report,
     });
   } catch (error) {
     console.log("Report Save Error:", error);
 
     res.status(500).json({
       message: "Report could not be saved.",
+    });
+  }
+});
+
+// Get My Report History API
+app.get("/api/reports/my", verifyToken, verifyUser, async (req, res) => {
+  try {
+    const reports = await Report.find({
+      userId: req.user.id,
+    }).sort({
+      createdAt: -1,
+    });
+
+    res.status(200).json(reports);
+  } catch (error) {
+    console.log("My Report History Error:", error);
+
+    res.status(500).json({
+      message: "Could not fetch your reports.",
     });
   }
 });
@@ -396,6 +471,53 @@ app.get("/api/admin/reports", async (req, res) => {
     });
   }
 });
+
+// Update Incident Report Status API
+app.patch(
+  "/api/admin/reports/:id",
+  verifyToken,
+  verifyAdmin,
+  async (req, res) => {
+    try {
+      const { status } = req.body;
+
+      const allowedStatuses = [
+        "Pending",
+        "Under Review",
+        "Resolved",
+      ];
+
+      if (!allowedStatuses.includes(status)) {
+        return res.status(400).json({
+          message: "Invalid report status.",
+        });
+      }
+
+      const report = await Report.findByIdAndUpdate(
+        req.params.id,
+        { status },
+        { new: true, runValidators: true }
+      );
+
+      if (!report) {
+        return res.status(404).json({
+          message: "Report not found.",
+        });
+      }
+
+      res.json({
+        message: "Report status updated successfully.",
+        report,
+      });
+    } catch (error) {
+      console.log("Report Status Update Error:", error);
+
+      res.status(500).json({
+        message: "Report status update failed.",
+      });
+    }
+  }
+);
 
 // Save SOS Alert API
 app.post("/api/sos", async (req, res) => {
@@ -503,7 +625,7 @@ app.delete("/api/admin/safety-tips/:id", async (req, res) => {
     console.log("Delete Safety Tip Error:", error);
 
     res.status(500).json({
-      message: "Could not delete safety tip.",
+      message: "Could not delete safety tips.",
     });
   }
 });
