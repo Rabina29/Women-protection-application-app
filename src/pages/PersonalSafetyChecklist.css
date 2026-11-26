@@ -1,0 +1,150 @@
+
+.checklist-page {
+  max-width: 850px;
+  margin: 0 auto;
+}
+
+.checklist-intro {
+  color: #647568;
+  line-height: 1.7;
+  margin-bottom: 25px;
+}
+
+.checklist-progress {
+  background: #f0f5ef;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 22px;
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  color: #35483a;
+  margin-bottom: 12px;
+}
+
+.progress-track {
+  width: 100%;
+  height: 10px;
+  background: #dce5d7;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: #35483a;
+  border-radius: 20px;
+  transition: width 0.3s ease;
+}
+
+.checklist-progress p {
+  color: #647568;
+  font-size: 13px;
+  margin-bottom: 0;
+  margin-top: 10px;
+}
+
+.checklist-items {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.checklist-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 17px;
+  border: 1px solid #dce5d7;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: 0.2s ease;
+  background: white;
+}
+
+.checklist-item:hover {
+  border-color: #879b83;
+  background: #f8faf7;
+}
+
+.checklist-item input {
+  width: 19px;
+  height: 19px;
+  accent-color: #35483a;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.checklist-text {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1;
+}
+
+.checklist-text strong {
+  color: #35483a;
+  font-size: 15px;
+}
+
+.checklist-text small {
+  color: #718075;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.checklist-item.completed {
+  background: #f0f5ef;
+  border-color: #879b83;
+}
+
+.checklist-item.completed .checklist-text strong {
+  color: #718075;
+}
+
+.checklist-check {
+  color: #35483a;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.checklist-success {
+  background: #e5f2e4;
+  color: #35483a;
+  padding: 16px;
+  border-radius: 10px;
+  margin-top: 20px;
+  font-weight: 600;
+}
+
+.checklist-reset {
+  margin-top: 22px;
+  background: #35483a;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 22px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.checklist-reset:hover {
+  background: #26382b;
+}
+
+@media (max-width: 600px) {
+  .checklist-item {
+    padding: 13px;
+    gap: 10px;
+  }
+
+  .checklist-text strong {
+    font-size: 14px;
+  }
+
+  .checklist-text small {
+    font-size: 12px;
+  }
+}

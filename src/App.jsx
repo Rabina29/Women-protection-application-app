@@ -5,7 +5,6 @@ import { useState, useEffect } from "react";
 import "./App.css";
 
 import EmergencyNumbers from "./components/EmergencyNumbers";
-<Contact />
 import Login from "./pages/login";
 import Register from "./pages/register";
 import Community from "./pages/Community";
@@ -18,6 +17,7 @@ import SafetyCheckIn from "./pages/SafetyCheckIn";
 import EvidenceLocker from "./pages/EvidenceLocker";
 import DirectComplaint from "./pages/DirectComplaint";
 import LiveLocation from "./pages/LiveLocation";
+import PersonalSafetyChecklist from "./pages/PersonalSafetyChecklist";
 
 function App() {
   const [page, setPage] = useState("Login");
@@ -65,6 +65,7 @@ function App() {
     "Evidence Locker",
     "Direct Complaint Submission",
     "Live Location Sharing",
+    "Personal Safety Checklist",
   ];
 
   const icons = {
@@ -84,6 +85,7 @@ function App() {
     "Evidence Locker": "🔐",
     "Direct Complaint Submission": "📨",
     "Live Location Sharing": "📍",
+    "Personal Safety Checklist": "✓",
   };
 
   useEffect(() => {
@@ -443,6 +445,7 @@ function App() {
                 ["Evidence Locker", "Store and view your important evidence.", "🔐"],
                 ["Direct Complaint Submission", "Submit a complaint through the demo platform.", "📨"],
                 ["Live Location Sharing", "Share your current location securely.", "📍"],
+                ["Personal Safety Checklist", "Check your safety before going outside.", "✓"],
               ].map(([name, description, icon]) => (
                 <button
                   className="feature-card"
@@ -539,6 +542,9 @@ function App() {
             token={userToken}
           />
         );
+
+      case "Personal Safety Checklist":
+        return <PersonalSafetyChecklist />;
 
       case "Public Transport Complaint":
         return <TransportComplaint />;
