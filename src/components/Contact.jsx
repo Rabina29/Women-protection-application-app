@@ -10,6 +10,7 @@ function Contact() {
 
   // Logged-in user's email
   const userEmail = localStorage.getItem("userEmail");
+  console.log("Logged-in Email:", userEmail);
 
   // Load saved contacts
   const loadContacts = async () => {
@@ -23,8 +24,10 @@ function Contact() {
       const data = await response.json();
 
       if (response.ok) {
-        setContacts(data.contacts || []);
-      }
+  setContacts(Array.isArray(data) ? data : data.contacts || []);
+} else {
+  setMessage("Failed to load contacts.");
+}
     } catch (error) {
       setMessage("Could not load contacts.");
     }
@@ -117,6 +120,9 @@ function Contact() {
             <strong>{contact.name}</strong>
             <p>{contact.phone}</p>
             <small>{contact.relationship}</small>
+            <a href={`sms:${contact.phone}?body=${encodeURIComponent("I am in danger. Please help me immediately.")}`}>
+  <button type="button">Quick SMS</button>
+</a>
           </div>
         ))
       )}

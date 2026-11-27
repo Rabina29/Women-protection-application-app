@@ -433,6 +433,23 @@ app.post("/api/reports", verifyToken, verifyUser, async (req, res) => {
     });
   }
 });
+// Get All Incident Reports API
+app.get("/api/reports", verifyToken, verifyAdmin, async (req, res) => {
+  try {
+    const reports = await Report.find().sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      reports,
+    });
+  } catch (error) {
+    console.log("Report Fetch Error:", error);
+
+    res.status(500).json({
+      message: "Could not fetch reports.",
+    });
+  }
+});
 
 // Get My Report History API
 app.get("/api/reports/my", verifyToken, verifyUser, async (req, res) => {
@@ -997,6 +1014,7 @@ app.patch("/api/posts/:id/like", async (req, res) => {
     });
   }
 });
+
 // Start Server
 const PORT = 5000;
 
