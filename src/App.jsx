@@ -1,4 +1,5 @@
 
+import LegalGuide from "./components/LegalGuide";
 import Contact from "./components/Contact";
 import TransportComplaint from "./pages/TransportComplaint";
 import { useState, useEffect } from "react";
@@ -70,6 +71,7 @@ function App() {
     "Personal Safety Checklist",
     "Women Safety Awareness Quiz",
     "Self-Defense Learning Cards",
+    "Women Rights & Legal Guide",
   ];
 
   const icons = {
@@ -92,6 +94,7 @@ function App() {
     "Personal Safety Checklist": "✓",
     "Women Safety Awareness Quiz": "📝",
     "Self-Defense Learning Cards": "🥋",
+    "Women Rights & Legal Guide": "⚖️",
   };
 
   useEffect(() => {
@@ -454,6 +457,7 @@ function App() {
                 ["Personal Safety Checklist", "Check your safety before going outside.", "✓"],
                 ["Women Safety Awareness Quiz", "Test your knowledge about women's safety.", "📝"],
                 ["Self-Defense Learning Cards", "Learn simple personal safety and self-defense tips.", "🥋"],
+                ["Women Rights & Legal Guide", "Learn about women's rights and safety.", "⚖️"],
               ].map(([name, description, icon]) => (
                 <button
                   className="feature-card"
@@ -542,7 +546,8 @@ function App() {
             </div>
           </>
         );
-
+case "Women Rights & Legal Guide":
+  return <LegalGuide />;
       case "Live Location Sharing":
         return (
           <LiveLocation
