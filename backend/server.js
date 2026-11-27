@@ -652,6 +652,7 @@ const TransportComplaint = mongoose.model(
   "TransportComplaint",
   transportComplaintSchema
 );
+
 // Community Post Schema
 const postSchema = new mongoose.Schema({
   text: {
@@ -671,9 +672,23 @@ const postSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  comments: [
+    {
+      text: {
+        type: String,
+        required: true,
+        trim: true,
+      },
+      createdAt: {
+        type: Date,
+        default: Date.now,
+      },
+    },
+  ],
 });
 
 const Post = mongoose.model("Post", postSchema);
+
 // Emergency Contact Schema
 const emergencyContactSchema = new mongoose.Schema({
   userEmail: { type: String, required: true },
@@ -821,6 +836,48 @@ app.get("/api/posts", async (req, res) => {
 
     res.status(500).json({
       message: "Could not fetch posts.",
+    });
+  }
+});
+
+ // Add Comment to Community Post API
+app.post("/api/posts/:id/comments", async (req, res) => {
+  try {
+    const { text } = req.body;
+
+    if (!text || !text.trim()) {
+      return res.status(400).json({
+        message: "Comment cannot be empty.",
+      });
+    }
+
+    const post = await Post.findByIdAndUpdate(
+      req.params.id,
+      {
+        $push: {
+          comments: {
+            text: text.trim(),
+          },
+        },
+      },
+      { returnDocument: "after" }
+    );
+
+    if (!post) {
+      return res.status(404).json({
+        message: "Post not found.",
+      });
+    }
+
+    res.status(200).json({
+      message: "Comment added successfully!",
+      post,
+    });
+  } catch (error) {
+    console.log("Add Comment Error:", error);
+
+    res.status(500).json({
+      message: "Could not add comment.",
     });
   }
 });

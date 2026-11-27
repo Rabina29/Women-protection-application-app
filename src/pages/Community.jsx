@@ -1,5 +1,4 @@
 
-
 import { useState, useEffect } from "react";
 
 function Community() {
@@ -7,6 +6,7 @@ function Community() {
   const [anonymous, setAnonymous] = useState(false);
   const [posts, setPosts] = useState([]);
   const [message, setMessage] = useState("Loading posts...");
+  const [commentTexts, setCommentTexts] = useState({});
 
   // Load posts from MongoDB
   useEffect(() => {
@@ -69,31 +69,75 @@ function Community() {
   };
 
   // Like a post and save in MongoDB
-const likePost = async (id) => {
-  try {
-    const response = await fetch(
-      `http://localhost:5000/api/posts/${id}/like`,
-      {
-        method: "PATCH",
+  const likePost = async (id) => {
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/posts/${id}/like`,
+        {
+          method: "PATCH",
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.message || "Could not like post.");
+        return;
       }
-    );
 
-    const data = await response.json();
+      setPosts((previousPosts) =>
+        previousPosts.map((post) =>
+          post._id === id ? data.post : post
+        )
+      );
+    } catch (error) {
+      alert("Could not connect to backend.");
+    }
+  };
 
-    if (!response.ok) {
-      alert(data.message || "Could not like post.");
+  // Add comment and save in MongoDB
+  const addComment = async (id) => {
+    const text = commentTexts[id] || "";
+
+    if (!text.trim()) {
+      alert("Please write a comment!");
       return;
     }
 
-    setPosts((previousPosts) =>
-      previousPosts.map((post) =>
-        post._id === id ? data.post : post
-      )
-    );
-  } catch (error) {
-    alert("Could not connect to backend.");
-  }
-};
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/posts/${id}/comments`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ text }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.message || "Comment could not be saved.");
+        return;
+      }
+
+      setPosts((previousPosts) =>
+        previousPosts.map((post) =>
+          post._id === id ? data.post : post
+        )
+      );
+
+      setCommentTexts((previous) => ({
+        ...previous,
+        [id]: "",
+      }));
+
+    } catch (error) {
+      alert("Could not connect to backend.");
+    }
+  };
 
   return (
     <div
@@ -170,6 +214,43 @@ const likePost = async (id) => {
 
           <button onClick={() => likePost(post._id)}>
             Like ({post.likes})
+          </button>
+
+          <h4>Comments ({post.comments?.length || 0})</h4>
+
+          {post.comments?.map((comment, index) => (
+            <p
+              key={comment._id || index}
+              style={{
+                background: "#f1f5ef",
+                padding: "8px",
+                borderRadius: "8px",
+              }}
+            >
+              {comment.text}
+            </p>
+          ))}
+
+          <textarea
+            value={commentTexts[post._id] || ""}
+            onChange={(e) =>
+              setCommentTexts((previous) => ({
+                ...previous,
+                [post._id]: e.target.value,
+              }))
+            }
+            placeholder="Write a comment..."
+            style={{
+              width: "100%",
+              height: "60px",
+              padding: "10px",
+              marginTop: "10px",
+              boxSizing: "border-box",
+            }}
+          />
+
+          <button onClick={() => addComment(post._id)}>
+            Add Comment
           </button>
         </div>
       ))}
