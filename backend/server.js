@@ -652,7 +652,6 @@ const TransportComplaint = mongoose.model(
   "TransportComplaint",
   transportComplaintSchema
 );
-
 // Community Post Schema
 const postSchema = new mongoose.Schema({
   text: {
@@ -683,6 +682,19 @@ const postSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
       },
+      replies: [
+        {
+          text: {
+            type: String,
+            required: true,
+            trim: true,
+          },
+          createdAt: {
+            type: Date,
+            default: Date.now,
+          },
+        },
+      ],
     },
   ],
 });
@@ -881,7 +893,49 @@ app.post("/api/posts/:id/comments", async (req, res) => {
     });
   }
 });
+// Add Reply to Comment API
+app.post("/api/posts/:postId/comments/:commentId/replies", async (req, res) => {
+  try {
+    const { text } = req.body;
 
+    if (!text || !text.trim()) {
+      return res.status(400).json({
+        message: "Reply cannot be empty.",
+      });
+    }
+
+    const post = await Post.findOneAndUpdate(
+      {
+        _id: req.params.postId,
+        "comments._id": req.params.commentId,
+      },
+      {
+        $push: {
+          "comments.$.replies": {
+            text: text.trim(),
+          },
+        },
+      },
+      { returnDocument: "after" }
+    );
+
+    if (!post) {
+      return res.status(404).json({
+        message: "Post or comment not found.",
+      });
+    }
+
+    res.status(200).json({
+      message: "Reply added successfully!",
+      post,
+    });
+  } catch (error) {
+    console.log("Add Reply Error:", error);
+    res.status(500).json({
+      message: "Could not add reply.",
+    });
+  }
+});
 // Emergency Contacts API
 app.post("/api/contacts", async (req, res) => {
   try {

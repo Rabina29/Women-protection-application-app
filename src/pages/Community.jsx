@@ -7,6 +7,7 @@ function Community() {
   const [posts, setPosts] = useState([]);
   const [message, setMessage] = useState("Loading posts...");
   const [commentTexts, setCommentTexts] = useState({});
+  const [replyTexts, setReplyTexts] = useState({});
 
   // Load posts from MongoDB
   useEffect(() => {
@@ -133,7 +134,49 @@ function Community() {
         ...previous,
         [id]: "",
       }));
+    } catch (error) {
+      alert("Could not connect to backend.");
+    }
+  };
 
+  // Add reply to a comment and save in MongoDB
+  const addReply = async (postId, commentId) => {
+    const text = replyTexts[commentId] || "";
+
+    if (!text.trim()) {
+      alert("Please write a reply!");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/posts/${postId}/comments/${commentId}/replies`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ text }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.message || "Reply could not be saved.");
+        return;
+      }
+
+      setPosts((previousPosts) =>
+        previousPosts.map((post) =>
+          post._id === postId ? data.post : post
+        )
+      );
+
+      setReplyTexts((previous) => ({
+        ...previous,
+        [commentId]: "",
+      }));
     } catch (error) {
       alert("Could not connect to backend.");
     }
@@ -219,16 +262,61 @@ function Community() {
           <h4>Comments ({post.comments?.length || 0})</h4>
 
           {post.comments?.map((comment, index) => (
-            <p
+            <div
               key={comment._id || index}
               style={{
                 background: "#f1f5ef",
-                padding: "8px",
+                padding: "10px",
                 borderRadius: "8px",
+                marginTop: "10px",
               }}
             >
-              {comment.text}
-            </p>
+              <p>{comment.text}</p>
+
+              <div style={{ marginLeft: "20px" }}>
+                <strong>
+                  Replies ({comment.replies?.length || 0})
+                </strong>
+
+                {comment.replies?.map((reply, replyIndex) => (
+                  <p
+                    key={reply._id || replyIndex}
+                    style={{
+                      background: "#ffffff",
+                      padding: "8px",
+                      borderRadius: "6px",
+                    }}
+                  >
+                    {reply.text}
+                  </p>
+                ))}
+
+                <textarea
+                  value={replyTexts[comment._id] || ""}
+                  onChange={(e) =>
+                    setReplyTexts((previous) => ({
+                      ...previous,
+                      [comment._id]: e.target.value,
+                    }))
+                  }
+                  placeholder="Write a reply..."
+                  style={{
+                    width: "100%",
+                    height: "50px",
+                    padding: "8px",
+                    boxSizing: "border-box",
+                  }}
+                />
+
+                <button
+                  onClick={() =>
+                    addReply(post._id, comment._id)
+                  }
+                >
+                  Add Reply
+                </button>
+              </div>
+            </div>
           ))}
 
           <textarea
