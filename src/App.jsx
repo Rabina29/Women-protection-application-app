@@ -21,6 +21,7 @@ import LiveLocation from "./pages/LiveLocation";
 import PersonalSafetyChecklist from "./pages/PersonalSafetyChecklist";
 import WomenSafetyQuiz from "./pages/WomenSafetyQuiz";
 import SelfDefenseCards from "./pages/SelfDefenseCards";
+import HelpFAQ from "./components/HelpFAQ";
 
 function App() {
   const [page, setPage] = useState("Login");
@@ -72,6 +73,7 @@ function App() {
     "Women Safety Awareness Quiz",
     "Self-Defense Learning Cards",
     "Women Rights & Legal Guide",
+    "Help & FAQ",
   ];
 
   const icons = {
@@ -95,6 +97,7 @@ function App() {
     "Women Safety Awareness Quiz": "📝",
     "Self-Defense Learning Cards": "🥋",
     "Women Rights & Legal Guide": "⚖️",
+    "Help & FAQ": "❓",
   };
 
   useEffect(() => {
@@ -458,6 +461,7 @@ function App() {
                 ["Women Safety Awareness Quiz", "Test your knowledge about women's safety.", "📝"],
                 ["Self-Defense Learning Cards", "Learn simple personal safety and self-defense tips.", "🥋"],
                 ["Women Rights & Legal Guide", "Learn about women's rights and safety.", "⚖️"],
+                ["Help & FAQ", "Find answers to common questions.", "❓"],
               ].map(([name, description, icon]) => (
                 <button
                   className="feature-card"
@@ -548,6 +552,8 @@ function App() {
         );
 case "Women Rights & Legal Guide":
   return <LegalGuide />;
+  case "Help & FAQ":
+  return <HelpFAQ />;
       case "Live Location Sharing":
         return (
           <LiveLocation
