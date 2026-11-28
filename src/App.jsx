@@ -22,6 +22,7 @@ import PersonalSafetyChecklist from "./pages/PersonalSafetyChecklist";
 import WomenSafetyQuiz from "./pages/WomenSafetyQuiz";
 import SelfDefenseCards from "./pages/SelfDefenseCards";
 import HelpFAQ from "./components/HelpFAQ";
+import EmergencyMessageTemplates from "./components/EmergencyMessageTemplates";
 
 function App() {
   const [page, setPage] = useState("Login");
@@ -74,6 +75,7 @@ function App() {
     "Self-Defense Learning Cards",
     "Women Rights & Legal Guide",
     "Help & FAQ",
+    "Emergency Message Templates",
   ];
 
   const icons = {
@@ -98,6 +100,7 @@ function App() {
     "Self-Defense Learning Cards": "🥋",
     "Women Rights & Legal Guide": "⚖️",
     "Help & FAQ": "❓",
+    "Emergency Message Templates": "📩",
   };
 
   useEffect(() => {
@@ -554,6 +557,8 @@ case "Women Rights & Legal Guide":
   return <LegalGuide />;
   case "Help & FAQ":
   return <HelpFAQ />;
+  case "Emergency Message Templates":
+  return <EmergencyMessageTemplates />;
       case "Live Location Sharing":
         return (
           <LiveLocation

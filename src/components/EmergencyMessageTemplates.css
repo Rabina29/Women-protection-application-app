@@ -1,0 +1,67 @@
+
+.emergency-messages {
+  max-width: 950px;
+  margin: 40px auto;
+  padding: 25px;
+  background: #f7faf6;
+  border-radius: 15px;
+  color: #35483A;
+}
+
+.emergency-messages h1 {
+  text-align: center;
+  color: #35483A;
+}
+
+.emergency-messages .message-intro {
+  text-align: center;
+  color: #68776b;
+  margin-bottom: 25px;
+}
+
+.emergency-message-card {
+  background: white;
+  padding: 20px;
+  margin: 15px 0;
+  border-radius: 10px;
+  border: 1px solid #DCE5D7;
+}
+
+.emergency-message-card small {
+  color: #879B83;
+  font-weight: 600;
+}
+
+.emergency-message-card h3 {
+  color: #35483A;
+  margin: 10px 0;
+}
+
+.emergency-message-card p {
+  color: #5b6b5e;
+  line-height: 1.7;
+}
+
+.emergency-message-card button {
+  background: #35483A;
+  color: white;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 7px;
+  cursor: pointer;
+}
+
+.emergency-message-card button:hover {
+  background: #879B83;
+}
+
+@media (max-width: 600px) {
+  .emergency-messages {
+    margin: 20px 10px;
+    padding: 18px;
+  }
+
+  .emergency-messages h1 {
+    font-size: 24px;
+  }
+}
